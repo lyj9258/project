@@ -1,29 +1,56 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
+
+import centerRouter from './routes/center'
+import cinemaRouter from './routes/cinema'
+import filmRouter from './routes/film'
+import detailRouter from './routes/detail'
+import cityRouter from './routes/city'
+import vuexRouter from './routes/vuex'
+import authRouter from './routes/auth'
+
 
 Vue.use(VueRouter)
 
 const routes = [
+  centerRouter,
+  cinemaRouter,
+  filmRouter,
+  detailRouter,
+  cityRouter,
+  vuexRouter,
+  ...authRouter,
   {
-    path: '/',
-    name: 'Home',
-    component: Home
-  },
-  {
-    path: '/about',
-    name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
+    path:'/',
+    redirect:"/film"
   }
 ]
 
 const router = new VueRouter({
   mode: 'history',
-  base: process.env.BASE_URL,
+  // base: process.env.BASE_URL,
   routes
 })
 
-export default router
+//全局路由守卫
+router.beforeEach((to,from,next)=>{
+  let arr = [
+    //存需要登录的页面
+    "/cinema",
+  //   ...
+   ];
+   if(arr.includes(to.path)){
+     //返回真则在
+     if(localStorage.getItem('_token')){
+      next()
+     }else{
+      next({path:'/login',query:{'refer':to.fullPath}})
+     }
+   }else{
+     //不在 （不需要登录判断）
+     next()
+   }
+
+})
+
+export default router;
